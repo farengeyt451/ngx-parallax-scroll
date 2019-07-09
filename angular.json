@@ -134,6 +134,41 @@
           }
         }
       }
+    },
+    "ngx-parallax-scroll": {
+      "root": "projects/ngx-parallax-scroll",
+      "sourceRoot": "projects/ngx-parallax-scroll/src",
+      "projectType": "library",
+      "prefix": "ngx",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/ngx-parallax-scroll/tsconfig.lib.json",
+            "project": "projects/ngx-parallax-scroll/ng-package.json"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/ngx-parallax-scroll/src/test.ts",
+            "tsConfig": "projects/ngx-parallax-scroll/tsconfig.spec.json",
+            "karmaConfig": "projects/ngx-parallax-scroll/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/ngx-parallax-scroll/tsconfig.lib.json",
+              "projects/ngx-parallax-scroll/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }
   },
   "defaultProject": "ng-parallax-scroll"

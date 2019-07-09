@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { IParallaxScrollConfig } from 'projects/ngx-parallax-scroll/src/public-api';
 
 @Component({
   selector: 'app-root',
@@ -7,4 +8,9 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'ng-parallax-scroll';
+  ngParallaxConf: IParallaxScrollConfig = {
+    parallaxSpeed: 1,
+    parallaxSmoothness: 1,
+    parallaxDirection: 'reverse'
+  };
 }
