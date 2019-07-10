@@ -5,6 +5,12 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build-lib": "ng build ngx-parallax-scroll",
+    "npm-pack": "cd dist/ngx-parallax-scroll && npm pack",
+    "copy-license": "cp ./LICENSE dist/ngx-parallax-scroll",
+    "copy-readme": "cp ./README.md dist/ngx-parallax-scroll",
+    "copy-files": "npm run copy-license && npm run copy-readme",
+    "package": "npm run build-lib && npm run copy-files && npm run npm-pack",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
