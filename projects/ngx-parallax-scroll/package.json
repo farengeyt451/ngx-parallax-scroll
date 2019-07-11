@@ -1,6 +1,6 @@
 {
   "name": "ngx-parallax-scroll",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "This is a simple angular plugin, that allows us to implement parallax effect for some element in page",
   "keywords": [
     "Angular",
