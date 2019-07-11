@@ -1,27 +1,98 @@
-# NgParallaxScroll
+# ngx-parallaxs-scroll
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.3.9.
+This is a simple angular plugin, that allows us to implement parallax effect for some element in page.
 
-## Development server
+## Demo
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+Example application: [https://ngx-parallax-scroll.stackblitz.io](https://ngx-parallax-scroll.stackblitz.io)
+<br/>
+StackBlitz example: [https://stackblitz.com/edit/ngx-parallax-scroll](https://stackblitz.com/edit/ngx-parallax-scroll)
 
-## Code scaffolding
+## Installation
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+Install from npm:
 
-## Build
+`npm i ngx-parallax-scroll --save`
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+## Importing
 
-## Running unit tests
+Reference the directive in the main module:
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+`import { NgxParallaxScrollModule } from 'ngx-parallax-scroll';`
 
-## Running end-to-end tests
+Then in your base module:
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+    @NgModule({
+        imports: [
+            ...,
+            NgxParallaxScrollModule,
+        ],
+        declarations: [AppComponent],
+        bootstrap: [AppComponent]
+    })
 
-## Further help
+## Using
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+### Using as component
+
+Use the component, providing content for parallax effect, and config.
+
+In template:
+
+    <ngx-parallax-scroll [config]="ngParallaxConf">
+      <img src="..." class="parallax-img" alt="parallax-img">
+    </ngx-parallax-scroll>
+
+In component:
+
+    import { Component } from '@angular/core';
+    import { IParallaxScrollConfig } from 'ngx-parallax-scroll';
+
+    @Component({
+      ...
+    })
+    export class AppComponent {
+      ngParallaxConf: IParallaxScrollConfig = {
+        parallaxSpeed: 1,
+        parallaxSmoothness: 1,
+        parallaxDirection: 'reverse',
+        parallaxTimingFunction: 'ease-in',
+        parallaxThrottleTime: 80
+      };
+    }
+
+### Using as directive
+
+Use the directive, providing properties:
+
+    <img src="..."
+         class="parallax-img"
+         alt="parallax-img"
+         ngParallaxScroll
+         [parallaxSpeed]='1'
+         [parallaxSmoothness]='1'
+         [parallaxDirection]='"straight"'
+         [parallaxTimingFunction]='"linear"'
+         [parallaxThrottleTime]='0'>
+
+or providing config:
+
+    <img src="..."
+         class="parallax-img"
+         alt="parallax-img"
+         ngParallaxScroll
+         [config]="ngParallaxConf">
+
+## Expected properties
+
+| Attribute              | Type   | Optional | Default  | Description                                                                                                                                                                                                                   |
+| ---------------------- | ------ | -------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| parallaxSpeed          | number | no       | -        | Set scroll-speed behavior on scroll event                                                                                                                                                                                     |
+| parallaxSmoothness     | number | no       | -        | Set smooth effect (css transition time)                                                                                                                                                                                       |
+| parallaxDirection      | string | yes      | straight | Set element movement direction `('straight' | 'reverse')`                                                                                                                                                                     |
+| parallaxTimingFunction | string | yes      | linear   | Set css timing-function. Accept `<timing-function> = ease | linear | ease-in | ease-out | ease-in-out | step-start | step-end | steps(<integer>[, [ start | end ] ]?) | cubic-bezier(<number>, <number>, <number>, <number>)` |
+| parallaxThrottleTime   | number | yes      | 0        | Set throttling for scroll event                                                                                                                                                                                               |
+
+## License
+
+MIT
