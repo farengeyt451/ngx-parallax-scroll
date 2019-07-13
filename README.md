@@ -85,13 +85,13 @@ or providing config:
 
 ## Expected properties
 
-| Attribute              | Type   | Optional | Default  | Description                                                                                                         |
-| ---------------------- | ------ | -------- | -------- | ------------------------------------------------------------------------------------------------------------------- |
-| parallaxSpeed          | number | no       | -        | Set scroll-speed behavior on scroll event                                                                           |
-| parallaxSmoothness     | number | no       | -        | Set smooth effect (css transition time)                                                                             |
-| parallaxDirection      | string | yes      | straight | Set element movement direction `('straight' | 'reverse')`                                                           |
-| parallaxTimingFunction | string | yes      | linear   | Set css timing-function. Accept [timing-function](https://developer.mozilla.org/en-US/docs/Web/CSS/timing-function) |
-| parallaxThrottleTime   | number | yes      | 0        | Set throttling for scroll event                                                                                     |
+| Attribute              | Type   | Optinal | Default  | Description                                                                                                                |
+| ---------------------- | ------ | ------- | -------- | -------------------------------------------------------------------------------------------------------------------------- |
+| parallaxSpeed          | number | no      | -        | Set scroll-speed behavior on scroll event                                                                                  |
+| parallaxSmoothness     | number | no      | -        | Set smooth effect (css transition time)                                                                                    |
+| parallaxDirection      | string | yes     | straight | Set element movement direction <br> `('straight' | 'reverse')`                                                             |
+| parallaxTimingFunction | string | yes     | linear   | Set css timing-function. <br> Accept [ timing-function ](https://developer.mozilla.org/en-US/docs/Web/CSS/timing-function) |
+| parallaxThrottleTime   | number | yes     | 0        | Set throttling for scroll event                                                                                            |
 
 ## License
 
