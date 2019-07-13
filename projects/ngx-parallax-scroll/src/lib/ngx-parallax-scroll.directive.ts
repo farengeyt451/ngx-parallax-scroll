@@ -18,7 +18,7 @@ import { throttleTime } from 'rxjs/operators';
 import { IParallaxScrollConfig, ParallaxDirection } from './ngx-parallax.interfaces';
 
 @Directive({
-  selector: '[ngParallaxScroll]'
+  selector: '[ngxParallaxScroll]'
 })
 export class ParallaxScrollDirective implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   // Required input from config object or input props

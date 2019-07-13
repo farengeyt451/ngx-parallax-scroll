@@ -4,7 +4,7 @@ import { IParallaxScrollConfig } from './ngx-parallax.interfaces';
 @Component({
   selector: 'ngx-parallax-scroll',
   template: `
-    <div class="parallax-container" ngParallaxScroll [config]="config">
+    <div class="parallax-container" ngxParallaxScroll [config]="config">
       <ng-content></ng-content>
     </div>
   `,
