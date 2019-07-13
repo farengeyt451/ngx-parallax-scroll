@@ -85,13 +85,13 @@ or providing config:
 
 ## Expected properties
 
-| Attribute              | Type   | Optional | Default  | Description                                                                                                                                                                                                                   |
-| ---------------------- | ------ | -------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| parallaxSpeed          | number | no       | -        | Set scroll-speed behavior on scroll event                                                                                                                                                                                     |
-| parallaxSmoothness     | number | no       | -        | Set smooth effect (css transition time)                                                                                                                                                                                       |
-| parallaxDirection      | string | yes      | straight | Set element movement direction `('straight' | 'reverse')`                                                                                                                                                                     |
-| parallaxTimingFunction | string | yes      | linear   | Set css timing-function. Accept `<timing-function> = ease | linear | ease-in | ease-out | ease-in-out | step-start | step-end | steps(<integer>[, [ start | end ] ]?) | cubic-bezier(<number>, <number>, <number>, <number>)` |
-| parallaxThrottleTime   | number | yes      | 0        | Set throttling for scroll event                                                                                                                                                                                               |
+| Attribute              | Type   | Optional | Default  | Description                                                                                                         |
+| ---------------------- | ------ | -------- | -------- | ------------------------------------------------------------------------------------------------------------------- |
+| parallaxSpeed          | number | no       | -        | Set scroll-speed behavior on scroll event                                                                           |
+| parallaxSmoothness     | number | no       | -        | Set smooth effect (css transition time)                                                                             |
+| parallaxDirection      | string | yes      | straight | Set element movement direction `('straight' | 'reverse')`                                                           |
+| parallaxTimingFunction | string | yes      | linear   | Set css timing-function. Accept [timing-function](https://developer.mozilla.org/en-US/docs/Web/CSS/timing-function) |
+| parallaxThrottleTime   | number | yes      | 0        | Set throttling for scroll event                                                                                     |
 
 ## License
 
