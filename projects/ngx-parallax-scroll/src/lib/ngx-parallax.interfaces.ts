@@ -1,18 +1,18 @@
-export interface IParallaxScrollConfig {
-  // Set parallax speed, requared
-  parallaxSpeed: number;
+export interface ParallaxScrollConfig {
+  // Set parallax speed, required
+  speed?: number;
 
-  // Set parallax smoothness (transition time), requared
-  parallaxSmoothness: number;
+  // Set parallax smoothness (transition time), required
+  smoothness?: number;
 
   // Set parallax direction, optional, default - 'straight'
-  parallaxDirection?: string;
+  direction?: ParallaxDirection;
 
   // Set parallax timing function for transition, optional, default - 'linear'
-  parallaxTimingFunction?: string;
+  timingFunction?: string;
 
   // Set parallax throttle time (scroll throttling in ms), optional, default - '0ms'
-  parallaxThrottleTime?: number;
+  throttleT?: number;
 }
 
 export type ParallaxDirection = 'straight' | 'reverse';

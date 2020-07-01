@@ -1,21 +1,15 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { IParallaxScrollConfig } from './ngx-parallax.interfaces';
+import { ParallaxScrollConfig } from './ngx-parallax.interfaces';
 
 @Component({
   selector: 'ngx-parallax-scroll',
-  template: `
-    <div class="parallax-container" ngxParallaxScroll [config]="config">
-      <ng-content></ng-content>
-    </div>
-  `,
-  styles: [
-    `
-      .parallax-container display: inline-block;
-    `
-  ]
+  template: ` <div class="parallax-container" ngxParallaxScroll [parallaxProps]="config">
+    <ng-content></ng-content>
+  </div>`,
+  styles: [`.parallax-container display: inline-block;`],
 })
 export class NgxParallaxScrollComponent implements OnInit {
-  @Input() config: IParallaxScrollConfig;
+  @Input() config: ParallaxScrollConfig;
 
   constructor() {}
 

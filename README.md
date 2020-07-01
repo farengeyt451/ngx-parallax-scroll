@@ -46,13 +46,13 @@ In template:
 In component:
 
     import { Component } from '@angular/core';
-    import { IParallaxScrollConfig } from 'ngx-parallax-scroll';
+    import { ParallaxScrollConfig } from 'ngx-parallax-scroll';
 
     @Component({
       ...
     })
     export class AppComponent {
-      ngParallaxConf: IParallaxScrollConfig = {
+      ngParallaxConf: ParallaxScrollConfig = {
         parallaxSpeed: 1,
         parallaxSmoothness: 1,
         parallaxDirection: 'reverse',
