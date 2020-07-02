@@ -4,14 +4,10 @@ import {
   Renderer2,
   Input,
   OnInit,
-  AfterViewInit,
-  OnChanges,
-  SimpleChanges,
   OnDestroy,
   Inject,
   PLATFORM_ID,
 } from '@angular/core';
-import { isDevMode } from '@angular/core';
 import { isPlatformServer } from '@angular/common';
 import { fromEvent, Subscription } from 'rxjs';
 import { throttleTime } from 'rxjs/operators';
@@ -29,7 +25,7 @@ const DEFAULT_THROTTLE_TIME: number = 80;
 export class ParallaxScrollDirective implements OnInit, OnDestroy {
   @Input() private parallaxProps?: ParallaxScrollConfig = {};
 
-  private scrollSubscription: Subscription;
+  private scrollSub$: Subscription;
 
   constructor(
     public elem: ElementRef,
@@ -40,40 +36,34 @@ export class ParallaxScrollDirective implements OnInit, OnDestroy {
   ngOnInit() {
     if (isPlatformServer(this.platformId)) return;
     this.initParallax();
-    this.setParallaxElTransform();
     this.setParallaxTransition();
   }
 
   ngOnDestroy() {
-    this.scrollSubscription && this.scrollSubscription.unsubscribe();
+    this.scrollSub$ && this.scrollSub$.unsubscribe();
   }
 
-  /**
-   * Sub to scroll
-   * Update element position when 'scroll' event fire
-   **/
   private initParallax() {
     const { throttleT = DEFAULT_THROTTLE_TIME } = this.parallaxProps;
+    const { speed = DEFAULT_SPEED, direction = DEFAULT_DIRECTION } = this.parallaxProps;
+    const evaluatedSpeed: number = this.setParallaxSpeed(speed, direction);
 
-    this.scrollSubscription = fromEvent(window, 'scroll')
+    this.scrollSub$ = fromEvent(window, 'scroll')
       .pipe(throttleTime(throttleT))
       .subscribe(() => {
-        this.setParallaxElTransform();
+        this.setParallaxElTransform(evaluatedSpeed);
       });
   }
 
-  private setParallaxElTransform() {
+  private setParallaxElTransform(evaluatedSpeed: number) {
     const scrolled = window.pageYOffset;
-    const { speed = DEFAULT_SPEED, direction = DEFAULT_DIRECTION } = this.parallaxProps;
-
     this.renderer.setStyle(
       this.elem.nativeElement,
       'transform',
-      `translateY(${scrolled * this.setParallaxSpeed(speed, direction)}px) translateZ(0)`
+      `translateY(${scrolled * evaluatedSpeed}px) translateZ(0)`
     );
   }
 
-  // Setting parallax smooth effect styles, based on CSS animation-timing-function
   private setParallaxTransition() {
     const {
       smoothness = DEFAULT_SMOOTHNESS,
