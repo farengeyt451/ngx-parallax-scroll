@@ -18,7 +18,7 @@ interface ParallaxScrollConfigBase {
    *
    * Default value: 'straight'
    */
-  direction: ParallaxDirection;
+  direction: NgxParallaxDirection;
 
   /**
    * Timing function for css transition
@@ -58,6 +58,6 @@ interface ParallaxScrollConfigBase {
   intersectionObserverConfig: Partial<IntersectionObserverInit>;
 }
 
-export type ParallaxScrollConfig = Partial<ParallaxScrollConfigBase>;
+export type NgxParallaxScrollConfig = Partial<ParallaxScrollConfigBase>;
 
-export type ParallaxDirection = 'straight' | 'reverse';
+export type NgxParallaxDirection = 'straight' | 'reverse';

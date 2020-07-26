@@ -11,11 +11,12 @@ import {
 import { isPlatformServer } from '@angular/common';
 import { fromEvent, Subscription } from 'rxjs';
 import { throttleTime } from 'rxjs/operators';
-import { ParallaxScrollConfig, ParallaxDirection } from './ngx-parallax.interfaces';
+import { NgxParallaxScrollConfig, NgxParallaxDirection } from './ngx-parallax.interfaces';
+import { NgxParallaxScrollService } from './ngx-parallax-scroll.service';
 
 const DEFAULT_SPEED: number = 1;
 const DEFAULT_SMOOTHNESS: number = 1;
-const DEFAULT_DIRECTION: ParallaxDirection = 'straight';
+const DEFAULT_DIRECTION: NgxParallaxDirection = 'straight';
 const DEFAULT_TIMING_FUNCTION: string = 'linear';
 const DEFAULT_THROTTLE_TIME: number = 80;
 const DEFAULT_INTERSECTION_OBSERVER_DISABLED: boolean = false;
@@ -25,32 +26,48 @@ const DEFAULT_INTERSECTION_OBSERVER_CONFIG: IntersectionObserverInit = {
   threshold: 1,
 };
 
+interface ConfigChange {
+  type: string;
+  payload: NgxParallaxScrollConfig | null;
+}
+
 @Directive({
   selector: '[ngxParallaxScroll]',
 })
 export class ParallaxScrollDirective implements OnInit, OnDestroy {
-  @Input() private ngxParallaxScroll?: Partial<ParallaxScrollConfig> = {};
+  @Input() private ngxParallaxScroll?: Partial<NgxParallaxScrollConfig>;
 
   private observer: IntersectionObserver;
   private scrollSub$: Subscription;
   private isElementInViewport: boolean = true;
+  private observeTarget: HTMLElement;
+  private subs: Subscription = new Subscription();
 
   constructor(
     private parallaxSource: ElementRef,
     private renderer: Renderer2,
+    private parallaxService: NgxParallaxScrollService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit() {
     if (isPlatformServer(this.platformId)) return;
+    this.setDefaultConfig();
     this.initIntersectionObserver();
     this.initParallax();
     this.setParallaxTransition();
+    this.subToConfigChange();
+
+    this.parallaxService.setInstance(String(Math.random()), this);
   }
 
   ngOnDestroy() {
-    this.scrollSub$ && this.scrollSub$.unsubscribe();
-    this.observer && this.observer.disconnect();
+    this.subs.unsubscribe();
+    this.unobserveTarget(this.observeTarget);
+  }
+
+  private setDefaultConfig() {
+    this.ngxParallaxScroll = this.ngxParallaxScroll ? this.ngxParallaxScroll : {};
   }
 
   private initIntersectionObserver() {
@@ -64,19 +81,21 @@ export class ParallaxScrollDirective implements OnInit, OnDestroy {
       intersectionObserverConfig = DEFAULT_INTERSECTION_OBSERVER_CONFIG,
     } = this.ngxParallaxScroll;
 
+    console.log(intersectionObserverConfig);
+
     const callback = (entries: IntersectionObserverEntry[]) => {
       entries.forEach((entry: IntersectionObserverEntry) => {
         this.isElementInViewport = entry.intersectionRatio < 1 ? false : true;
       });
     };
 
-    const target = this.parallaxSource.nativeElement;
+    this.observeTarget = this.parallaxSource.nativeElement;
 
     this.observer = new IntersectionObserver(callback, {
       ...DEFAULT_INTERSECTION_OBSERVER_CONFIG,
       ...intersectionObserverConfig,
     });
-    this.observer.observe(target);
+    this.observer.observe(this.observeTarget);
   }
 
   private initParallax() {
@@ -90,7 +109,7 @@ export class ParallaxScrollDirective implements OnInit, OnDestroy {
   /**
    * Listen for scroll event
    * Change source element position
-   * Position based on evaluated speed
+   * Set position based on evaluated speed
    *
    * @param throttle { number }
    * @param evaluatedSpeed { number }
@@ -101,6 +120,41 @@ export class ParallaxScrollDirective implements OnInit, OnDestroy {
       .subscribe(() => {
         this.isElementInViewport && this.setParallaxElTransform(evaluatedSpeed);
       });
+    this.subs.add(this.scrollSub$);
+  }
+
+  /**
+   * Update parallax when config changed
+   */
+  private updateParallax() {
+    this.disableParallaxScroll();
+    this.reinitParallax();
+  }
+
+  private reinitParallax() {
+    this.initParallax();
+    this.initIntersectionObserver();
+    this.setParallaxTransition();
+  }
+
+  private disableParallaxScroll() {
+    this.unsubFromScroll();
+    this.unobserveTarget(this.observeTarget);
+  }
+
+  private subToConfigChange() {
+    const configChangeSub$ = this.parallaxService.parallaxConfigChange.subscribe(
+      (data: ConfigChange) => {
+        if (data.type === 'config') {
+          this.ngxParallaxScroll = { ...this.ngxParallaxScroll, ...data.payload };
+          this.updateParallax();
+        } else if (data.type === 'disableParallaxScroll') {
+          this.disableParallaxScroll();
+        }
+      }
+    );
+
+    this.subs.add(configChangeSub$);
   }
 
   /**
@@ -138,9 +192,17 @@ export class ParallaxScrollDirective implements OnInit, OnDestroy {
    * Change move direction speed value by multiplying -1
    *
    * @param speed { number }
-   * @param direction { ParallaxDirection }
+   * @param direction { NgxParallaxDirection }
    **/
-  private setParallaxSpeed(speed: number, direction: ParallaxDirection): number {
+  private setParallaxSpeed(speed: number, direction: NgxParallaxDirection): number {
     return speed * (direction === 'straight' ? 1 : -1);
+  }
+
+  private unsubFromScroll() {
+    this.scrollSub$ && this.scrollSub$.unsubscribe();
+  }
+
+  private unobserveTarget(target) {
+    this.observer && this.observer.unobserve(target);
   }
 }
