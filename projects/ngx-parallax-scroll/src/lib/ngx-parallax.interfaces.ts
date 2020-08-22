@@ -1,3 +1,5 @@
+import { ParallaxScrollDirective } from './ngx-parallax-scroll.directive';
+
 interface ParallaxScrollConfigBase {
   identifier: string;
   /**
@@ -62,3 +64,17 @@ interface ParallaxScrollConfigBase {
 export type NgxParallaxScrollConfig = Partial<ParallaxScrollConfigBase>;
 
 export type NgxParallaxDirection = 'straight' | 'reverse';
+
+export type InstanceChangeReason =
+  | 'setInstance'
+  | 'disable'
+  | 'enable'
+  | 'setProps'
+  | 'setContent'
+  | 'destroy';
+
+export interface InstancesChanges {
+  identifier: string;
+  reason: InstanceChangeReason;
+  instance: ParallaxScrollDirective;
+}

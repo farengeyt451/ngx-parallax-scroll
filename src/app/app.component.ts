@@ -6,7 +6,10 @@ import {
   OnInit,
   ElementRef,
 } from '@angular/core';
-import { NgxParallaxScrollConfig } from 'projects/ngx-parallax-scroll/src/public-api';
+import {
+  NgxParallaxScrollConfig,
+  InstancesChanges,
+} from 'projects/ngx-parallax-scroll/src/public-api';
 import { NgxParallaxScrollService } from 'projects/ngx-parallax-scroll/src/public-api';
 
 @Component({
@@ -20,27 +23,33 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   constructor(private parallaxService: NgxParallaxScrollService) {}
 
-  pConfig: NgxParallaxScrollConfig = {
+  config: NgxParallaxScrollConfig = {
     speed: 1,
     identifier: 'tomato',
     direction: 'reverse',
   };
 
   partialConfig: NgxParallaxScrollConfig = {
-    direction: 'reverse',
+    speed: 2,
   };
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.subToInstancesChange();
+  }
+
+  private subToInstancesChange() {
+    this.parallaxService.instancesChanges.subscribe((data: InstancesChanges) => {
+      console.log('InstancesChanges', data);
+    });
+  }
 
   ngAfterViewInit() {
-    console.log(this.parallaxService.getInstances());
     setTimeout(() => {
-      // this.parallaxService.disableParallaxScroll('tomato');
+      this.parallaxService.disable('tomato');
     }, 2000);
 
     setTimeout(() => {
-      // this.parallaxService.enableParallaxScroll('0');
-      // console.log(this.parallaxService.getInstance('0'));
+      this.parallaxService.enable('tomato');
     }, 7000);
   }
 }

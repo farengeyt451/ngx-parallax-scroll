@@ -1,11 +1,14 @@
 import { Injectable } from '@angular/core';
 import { ParallaxScrollDirective } from './ngx-parallax-scroll.directive';
+import { Subject, Observable } from 'rxjs';
+import { InstancesChanges, InstanceChangeReason } from './ngx-parallax.interfaces';
 
 @Injectable({
   providedIn: 'root',
 })
 export class NgxParallaxScrollService {
-  private parallaxInstances: Map<string, ParallaxScrollDirective> = new Map();
+  private scrollInstances$ = new Subject<InstancesChanges>();
+  private instances: Map<string, ParallaxScrollDirective> = new Map();
 
   constructor() {}
 
@@ -20,7 +23,7 @@ export class NgxParallaxScrollService {
    * @param instance { ParallaxScrollDirective }
    */
   setInstance(identifier: string, instance: ParallaxScrollDirective) {
-    this.parallaxInstances.set(identifier, instance);
+    this.instances.set(identifier, instance);
   }
 
   /**
@@ -30,7 +33,7 @@ export class NgxParallaxScrollService {
    * @returns { ParallaxScrollDirective | null }
    */
   public getInstance(identifier: string): ParallaxScrollDirective | null {
-    return this.parallaxInstances.has(identifier) ? this.parallaxInstances.get(identifier) : null;
+    return this.instances.has(identifier) ? this.instances.get(identifier) : null;
   }
 
   /**
@@ -39,7 +42,7 @@ export class NgxParallaxScrollService {
    * @returns { Map<string, ParallaxScrollDirective> | null }
    */
   public getInstances(): Map<string, ParallaxScrollDirective> | null {
-    return this.parallaxInstances.size ? this.parallaxInstances : null;
+    return this.instances.size ? this.instances : null;
   }
 
   /**
@@ -51,12 +54,12 @@ export class NgxParallaxScrollService {
    *
    * @param identifier { string }
    */
-  public disableParallaxScroll(identifier: string) {
-    if (!this.parallaxInstances.has(identifier)) {
+  public disable(identifier: string) {
+    if (!this.instances.has(identifier)) {
       this.throwError(`Instance with identifier '${identifier}' does not exist`);
     }
-
-    this.parallaxInstances.get(identifier).disable();
+    this.instances.get(identifier).disable();
+    this.emitInstancesChange('disable', identifier);
   }
 
   /**
@@ -64,15 +67,33 @@ export class NgxParallaxScrollService {
    *
    * @param identifier { string }
    */
-  public enableParallaxScroll(identifier: string) {
-    if (!this.parallaxInstances.has(identifier)) {
+  public enable(identifier: string) {
+    if (!this.instances.has(identifier)) {
       this.throwError(`Instance with identifier '${identifier}' does not exist`);
     }
-
-    this.parallaxInstances.get(identifier).enable();
+    this.instances.get(identifier).enable();
+    this.emitInstancesChange('enable', identifier);
   }
 
+  /**
+   * Subscription to change of instances
+   *
+   * @returns { Observable<InstancesChanges> } observable of instances change
+   */
+  get instancesChanges(): Observable<InstancesChanges> {
+    return this.scrollInstances$.asObservable();
+  }
+
+  /**
+   * Service methods
+   */
   private throwError(message: string, errorConstrictor: ErrorConstructor = Error) {
     throw new errorConstrictor(message);
+  }
+
+  private emitInstancesChange(reason: InstanceChangeReason, identifier: string) {
+    const instance = this.instances.get(identifier);
+
+    this.scrollInstances$.next({ identifier, reason, instance });
   }
 }
