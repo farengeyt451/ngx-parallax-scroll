@@ -1,4 +1,5 @@
 interface ParallaxScrollConfigBase {
+  identifier: string;
   /**
    * Speed of moving source element
    *

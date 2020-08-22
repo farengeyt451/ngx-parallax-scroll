@@ -1,52 +1,78 @@
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
-import { NgxParallaxScrollConfig } from './ngx-parallax.interfaces';
-
-interface ConfigChange {
-  type: string;
-  payload: NgxParallaxScrollConfig | null;
-}
+import { ParallaxScrollDirective } from './ngx-parallax-scroll.directive';
 
 @Injectable({
   providedIn: 'root',
 })
 export class NgxParallaxScrollService {
-  private parallaxInstances: Map<string, any> = new Map();
-
-  private parallaxConfig = new Subject<ConfigChange>();
-  public parallaxConfigChange = this.parallaxConfig.asObservable();
+  private parallaxInstances: Map<string, ParallaxScrollDirective> = new Map();
 
   constructor() {}
 
-  setInstance(name: string, state: any) {
-    this.parallaxInstances.set(name, state);
-    this.parallaxInstances.forEach((el) => {
-      console.log('log: NgxParallaxScrollService -> setInstance -> el', el);
-      el.ngxParallaxScroll.speed = 200;
-    });
+  /**
+   * Working with storage
+   */
+
+  /**
+   * Write instances to storage
+   *
+   * @param identifier { string }
+   * @param instance { ParallaxScrollDirective }
+   */
+  setInstance(identifier: string, instance: ParallaxScrollDirective) {
+    this.parallaxInstances.set(identifier, instance);
   }
 
   /**
-   * Set config
+   * Get specific instance
    *
-   * @param config { NgxParallaxScrollConfig }
+   * @param identifier { string }
+   * @returns { ParallaxScrollDirective | null }
    */
-  public setConfig(config: NgxParallaxScrollConfig) {
-    this.parallaxConfig.next({
-      type: 'config',
-      payload: config,
-    });
+  public getInstance(identifier: string): ParallaxScrollDirective | null {
+    return this.parallaxInstances.has(identifier) ? this.parallaxInstances.get(identifier) : null;
   }
+
+  /**
+   * Get all instances
+   *
+   * @returns { Map<string, ParallaxScrollDirective> | null }
+   */
+  public getInstances(): Map<string, ParallaxScrollDirective> | null {
+    return this.parallaxInstances.size ? this.parallaxInstances : null;
+  }
+
+  /**
+   * Methods
+   */
 
   /**
    * Disable parallax scroll
    *
-   * @param config { NgxParallaxScrollConfig }
+   * @param identifier { string }
    */
-  public disableParallaxScroll() {
-    this.parallaxConfig.next({
-      type: 'disableParallaxScroll',
-      payload: null,
-    });
+  public disableParallaxScroll(identifier: string) {
+    if (!this.parallaxInstances.has(identifier)) {
+      this.throwError(`Instance with identifier '${identifier}' does not exist`);
+    }
+
+    this.parallaxInstances.get(identifier).disable();
+  }
+
+  /**
+   * Enable parallax scroll
+   *
+   * @param identifier { string }
+   */
+  public enableParallaxScroll(identifier: string) {
+    if (!this.parallaxInstances.has(identifier)) {
+      this.throwError(`Instance with identifier '${identifier}' does not exist`);
+    }
+
+    this.parallaxInstances.get(identifier).enable();
+  }
+
+  private throwError(message: string, errorConstrictor: ErrorConstructor = Error) {
+    throw new errorConstrictor(message);
   }
 }

@@ -7,7 +7,7 @@ import {
   ElementRef,
 } from '@angular/core';
 import { NgxParallaxScrollConfig } from 'projects/ngx-parallax-scroll/src/public-api';
-import { NgxParallaxScrollService } from 'projects/ngx-parallax-scroll/src/lib/ngx-parallax-scroll.service';
+import { NgxParallaxScrollService } from 'projects/ngx-parallax-scroll/src/public-api';
 
 @Component({
   selector: 'app-root',
@@ -22,9 +22,25 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   pConfig: NgxParallaxScrollConfig = {
     speed: 1,
+    identifier: 'tomato',
+    direction: 'reverse',
+  };
+
+  partialConfig: NgxParallaxScrollConfig = {
+    direction: 'reverse',
   };
 
   ngOnInit() {}
 
-  ngAfterViewInit() {}
+  ngAfterViewInit() {
+    console.log(this.parallaxService.getInstances());
+    setTimeout(() => {
+      // this.parallaxService.disableParallaxScroll('tomato');
+    }, 2000);
+
+    setTimeout(() => {
+      // this.parallaxService.enableParallaxScroll('0');
+      // console.log(this.parallaxService.getInstance('0'));
+    }, 7000);
+  }
 }
