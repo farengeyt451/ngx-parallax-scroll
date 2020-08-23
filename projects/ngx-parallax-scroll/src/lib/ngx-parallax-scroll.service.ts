@@ -58,7 +58,7 @@ export class NgxParallaxScrollService {
     if (!this.instances.has(identifier)) {
       this.throwError(`Instance with identifier '${identifier}' does not exist`);
     }
-    this.instances.get(identifier).disable();
+    this.instances.get(identifier).disable('disable');
   }
 
   /**
@@ -70,7 +70,7 @@ export class NgxParallaxScrollService {
     if (!this.instances.has(identifier)) {
       this.throwError(`Instance with identifier '${identifier}' does not exist`);
     }
-    this.instances.get(identifier).enable();
+    this.instances.get(identifier).enable('enable');
   }
 
   /**

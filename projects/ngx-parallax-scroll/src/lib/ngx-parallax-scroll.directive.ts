@@ -26,15 +26,10 @@ interface State {
   isDestroyed: boolean;
   isElementInViewport: boolean;
   isWillChangeEnabled: boolean;
+  isIntersectionObserverDisabled: boolean;
 }
 
 let idCounter = 0;
-// const DEFAULT_INTERSECTION_OBSERVER_DISABLED: boolean = false;
-// const DEFAULT_INTERSECTION_OBSERVER_CONFIG: IntersectionObserverInit = {
-//   root: null,
-//   rootMargin: '0px',
-//   threshold: 1,
-// };
 
 @Directive({
   selector: '[ngxParallaxScroll]',
@@ -53,6 +48,7 @@ export class ParallaxScrollDirective implements OnInit, OnDestroy {
     isDestroyed: false,
     isElementInViewport: true,
     isWillChangeEnabled: true,
+    isIntersectionObserverDisabled: false,
   };
 
   private readonly defaultConfig: NgxParallaxScrollConfig = {
@@ -62,6 +58,12 @@ export class ParallaxScrollDirective implements OnInit, OnDestroy {
     timingFunction: 'linear',
     throttle: 80,
     isWillChangeEnabled: true,
+    isIntersectionObserverDisabled: false,
+    intersectionObserverConfig: {
+      root: null,
+      rootMargin: '0px',
+      threshold: 1,
+    },
   };
 
   constructor(
@@ -75,8 +77,8 @@ export class ParallaxScrollDirective implements OnInit, OnDestroy {
     if (isPlatformServer(this.platformID)) return;
 
     this.setDefaultConfig();
-    // this.initIntersectionObserver();
     this.init();
+    this.initIntersectionObserver();
     this.setWillChangeOptimization();
     this.setParallaxTransition();
     this.writeInstanceToStorage();
@@ -96,37 +98,41 @@ export class ParallaxScrollDirective implements OnInit, OnDestroy {
     this.ngxParallaxScroll = { ...this.defaultConfig, ...this.ngxParallaxScroll };
   }
 
-  // private initIntersectionObserver() {
-  //   const {
-  //     isIntersectionObserverDisabled = DEFAULT_INTERSECTION_OBSERVER_DISABLED,
-  //   } = this.ngxParallaxScroll;
-
-  //   if (isIntersectionObserverDisabled) return;
-
-  //   const {
-  //     intersectionObserverConfig = DEFAULT_INTERSECTION_OBSERVER_CONFIG,
-  //   } = this.ngxParallaxScroll;
-
-  //   const callback = (entries: IntersectionObserverEntry[]) => {
-  //     entries.forEach((entry: IntersectionObserverEntry) => {
-  //       this.isElementInViewport = entry.intersectionRatio < 1 ? false : true;
-  //     });
-  //   };
-
-  //   this.observeTarget = this.parallaxSource.nativeElement;
-
-  //   this.observer = new IntersectionObserver(callback, {
-  //     ...DEFAULT_INTERSECTION_OBSERVER_CONFIG,
-  //     ...intersectionObserverConfig,
-  //   });
-  //   this.observer.observe(this.observeTarget);
-  // }
-
   private init() {
     const { speed, direction, throttle } = this.ngxParallaxScroll;
-    const evaluatedSpeed: number = this.evaluateSpeed(speed, direction);
+    const evaluatedSpeed: number = this.evaluateSpeedDirection(speed, direction);
 
     this.subToScroll(throttle, evaluatedSpeed);
+  }
+
+  private initIntersectionObserver() {
+    const { isIntersectionObserverDisabled } = this.ngxParallaxScroll;
+    const { intersectionObserverConfig } = this.ngxParallaxScroll;
+
+    if (isIntersectionObserverDisabled) return;
+
+    const callback = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach((entry: IntersectionObserverEntry) => {
+        const isElementInViewport = entry.intersectionRatio < 1 ? false : true;
+        this.handleIntersection(isElementInViewport);
+      });
+    };
+
+    this.observeTarget = this.parallaxSource.nativeElement;
+
+    this.observer = new IntersectionObserver(callback, intersectionObserverConfig);
+
+    this.observer.observe(this.observeTarget);
+  }
+
+  private handleIntersection(isElementInViewport: boolean) {
+    if (isElementInViewport) {
+      this.enable('EnteredTheViewport');
+      this.setState('isElementInViewport', true);
+    } else {
+      this.disable('LeftTheViewport');
+      this.setState('isElementInViewport', false);
+    }
   }
 
   /**
@@ -143,8 +149,6 @@ export class ParallaxScrollDirective implements OnInit, OnDestroy {
       .subscribe(() => {
         this.processScrolling(evaluatedSpeed);
       });
-
-    this.subscription.add(this.scroll$);
   }
 
   private processScrolling(evaluatedSpeed: number) {
@@ -159,11 +163,13 @@ export class ParallaxScrollDirective implements OnInit, OnDestroy {
   private setParallaxElTransform(evaluatedSpeed: number) {
     const scrolled = window.pageYOffset;
 
-    this.renderer.setStyle(
-      this.parallaxSource.nativeElement,
-      'transform',
-      `translateY(${scrolled * evaluatedSpeed}px) translateZ(0)`
-    );
+    if (this.state.isElementInViewport) {
+      this.renderer.setStyle(
+        this.parallaxSource.nativeElement,
+        'transform',
+        `translateY(${scrolled * evaluatedSpeed}px) translateZ(0)`
+      );
+    }
   }
 
   /**
@@ -198,24 +204,24 @@ export class ParallaxScrollDirective implements OnInit, OnDestroy {
    * @param speed { number }
    * @param direction { NgxParallaxDirection }
    *
-   * @returns evaluatedSpeed { number }
+   * @returns evaluatedSpeedDirection { number }
    **/
-  private evaluateSpeed(speed: number, direction: NgxParallaxDirection): number {
+  private evaluateSpeedDirection(speed: number, direction: NgxParallaxDirection): number {
     return speed * (direction === 'straight' ? 1 : -1);
   }
 
   /** Methods */
 
-  disable() {
+  disable(reason: StateChangesReason) {
     this.setState('isEnabled', false);
     this.unsubFromScroll();
-    this.emitStateChange('disable');
+    this.emitStateChange(reason);
   }
 
-  enable() {
+  enable(reason: StateChangesReason) {
     this.setState('isEnabled', true);
     this.init();
-    this.emitStateChange('enable');
+    this.emitStateChange(reason);
   }
 
   /**

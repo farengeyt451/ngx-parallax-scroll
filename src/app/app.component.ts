@@ -1,11 +1,4 @@
-import {
-  Component,
-  AfterContentInit,
-  AfterViewInit,
-  ViewChild,
-  OnInit,
-  ElementRef,
-} from '@angular/core';
+import { Component, AfterViewInit, ViewChild, OnInit, ElementRef } from '@angular/core';
 import { NgxParallaxScrollConfig, StateChanges } from 'projects/ngx-parallax-scroll/src/public-api';
 import { NgxParallaxScrollService } from 'projects/ngx-parallax-scroll/src/public-api';
 
@@ -28,7 +21,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   };
 
   partialConfig: NgxParallaxScrollConfig = {
-    speed: 2,
+    speed: 1,
   };
 
   ngOnInit() {
@@ -43,9 +36,8 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     console.log(this.parallaxService.getInstances());
-    // setTimeout(() => {
-    //   this.parallaxService.disable('tomato');
-    // }, 2000);
+    // this.parallaxService.disable('tomato');
+    setTimeout(() => {}, 2000);
     // setTimeout(() => {
     //   this.parallaxService.enable('tomato');
     // }, 7000);

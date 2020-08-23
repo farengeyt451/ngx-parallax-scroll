@@ -72,6 +72,8 @@ export type StateChangesReason =
   | 'disable'
   | 'enable'
   | 'isWillChangeDisabled'
+  | 'LeftTheViewport'
+  | 'EnteredTheViewport'
   | 'setProps'
   | 'setContent'
   | 'destroy';
