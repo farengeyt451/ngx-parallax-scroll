@@ -6,10 +6,7 @@ import {
   OnInit,
   ElementRef,
 } from '@angular/core';
-import {
-  NgxParallaxScrollConfig,
-  InstancesChanges,
-} from 'projects/ngx-parallax-scroll/src/public-api';
+import { NgxParallaxScrollConfig, StateChanges } from 'projects/ngx-parallax-scroll/src/public-api';
 import { NgxParallaxScrollService } from 'projects/ngx-parallax-scroll/src/public-api';
 
 @Component({
@@ -27,6 +24,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     speed: 1,
     identifier: 'tomato',
     direction: 'reverse',
+    isWillChangeEnabled: false,
   };
 
   partialConfig: NgxParallaxScrollConfig = {
@@ -38,18 +36,18 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   private subToInstancesChange() {
-    this.parallaxService.instancesChanges.subscribe((data: InstancesChanges) => {
+    this.parallaxService.stateChanges.subscribe((data: StateChanges) => {
       console.log('InstancesChanges', data);
     });
   }
 
   ngAfterViewInit() {
-    setTimeout(() => {
-      this.parallaxService.disable('tomato');
-    }, 2000);
-
-    setTimeout(() => {
-      this.parallaxService.enable('tomato');
-    }, 7000);
+    console.log(this.parallaxService.getInstances());
+    // setTimeout(() => {
+    //   this.parallaxService.disable('tomato');
+    // }, 2000);
+    // setTimeout(() => {
+    //   this.parallaxService.enable('tomato');
+    // }, 7000);
   }
 }

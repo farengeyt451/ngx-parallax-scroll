@@ -1,13 +1,13 @@
 import { Injectable, isDevMode } from '@angular/core';
 import { ParallaxScrollDirective } from './ngx-parallax-scroll.directive';
 import { Subject, Observable } from 'rxjs';
-import { InstancesChanges, InstanceChangeReason } from './ngx-parallax.interfaces';
+import { StateChanges, StateChangesReason } from './ngx-parallax.interfaces';
 
 @Injectable({
   providedIn: 'root',
 })
 export class NgxParallaxScrollService {
-  private scrollInstances$ = new Subject<InstancesChanges>();
+  private parallaxScrollState$ = new Subject<StateChanges>();
   private instances: Map<string, ParallaxScrollDirective> = new Map();
 
   constructor() {}
@@ -59,7 +59,6 @@ export class NgxParallaxScrollService {
       this.throwError(`Instance with identifier '${identifier}' does not exist`);
     }
     this.instances.get(identifier).disable();
-    this.emitInstancesChange('disable', identifier);
   }
 
   /**
@@ -72,16 +71,15 @@ export class NgxParallaxScrollService {
       this.throwError(`Instance with identifier '${identifier}' does not exist`);
     }
     this.instances.get(identifier).enable();
-    this.emitInstancesChange('enable', identifier);
   }
 
   /**
    * Subscription to change of instances
    *
-   * @returns { Observable<InstancesChanges> } observable of instances change
+   * @returns { Observable<StateChanges> } observable of instances change
    */
-  get instancesChanges(): Observable<InstancesChanges> {
-    return this.scrollInstances$.asObservable();
+  get stateChanges(): Observable<StateChanges> {
+    return this.parallaxScrollState$.asObservable();
   }
 
   /**
@@ -92,9 +90,11 @@ export class NgxParallaxScrollService {
     throw new errorConstrictor(message);
   }
 
-  private emitInstancesChange(reason: InstanceChangeReason, identifier: string) {
-    const instance = this.instances.get(identifier);
-
-    this.scrollInstances$.next({ identifier, reason, instance });
+  emitStateChange(
+    identifier: string,
+    reason: StateChangesReason,
+    instance: ParallaxScrollDirective
+  ) {
+    this.parallaxScrollState$.next({ identifier, reason, instance });
   }
 }

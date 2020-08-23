@@ -59,22 +59,25 @@ interface ParallaxScrollConfigBase {
     }
   */
   intersectionObserverConfig: Partial<IntersectionObserverInit>;
+
+  isWillChangeEnabled: boolean;
 }
 
 export type NgxParallaxScrollConfig = Partial<ParallaxScrollConfigBase>;
 
 export type NgxParallaxDirection = 'straight' | 'reverse';
 
-export type InstanceChangeReason =
+export type StateChangesReason =
   | 'setInstance'
   | 'disable'
   | 'enable'
+  | 'isWillChangeDisabled'
   | 'setProps'
   | 'setContent'
   | 'destroy';
 
-export interface InstancesChanges {
+export interface StateChanges {
   identifier: string;
-  reason: InstanceChangeReason;
+  reason: StateChangesReason;
   instance: ParallaxScrollDirective;
 }

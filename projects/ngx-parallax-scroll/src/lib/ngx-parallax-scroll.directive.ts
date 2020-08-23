@@ -11,15 +11,21 @@ import {
 import { isPlatformServer } from '@angular/common';
 import { fromEvent, Subscription } from 'rxjs';
 import { throttleTime } from 'rxjs/operators';
-import { NgxParallaxScrollConfig, NgxParallaxDirection } from './ngx-parallax.interfaces';
+import {
+  NgxParallaxScrollConfig,
+  NgxParallaxDirection,
+  StateChanges,
+  StateChangesReason,
+} from './ngx-parallax.interfaces';
 import { NgxParallaxScrollService } from './ngx-parallax-scroll.service';
 
-type stateTypes = 'isEnabled' | 'isDestroyed' | 'isElementInViewport';
+type stateTypes = 'isEnabled' | 'isDestroyed' | 'isElementInViewport' | 'isWillChangeEnabled';
 
 interface State {
   isEnabled: boolean;
   isDestroyed: boolean;
   isElementInViewport: boolean;
+  isWillChangeEnabled: boolean;
 }
 
 let idCounter = 0;
@@ -36,7 +42,7 @@ let idCounter = 0;
 export class ParallaxScrollDirective implements OnInit, OnDestroy {
   @Input() private ngxParallaxScroll?: Partial<NgxParallaxScrollConfig>;
 
-  private id = idCounter++;
+  private identifier: string;
   private observeTarget: HTMLElement;
   private observer: IntersectionObserver;
   private scroll$: Subscription;
@@ -46,6 +52,7 @@ export class ParallaxScrollDirective implements OnInit, OnDestroy {
     isEnabled: true,
     isDestroyed: false,
     isElementInViewport: true,
+    isWillChangeEnabled: true,
   };
 
   private readonly defaultConfig: NgxParallaxScrollConfig = {
@@ -54,6 +61,7 @@ export class ParallaxScrollDirective implements OnInit, OnDestroy {
     direction: 'straight',
     timingFunction: 'linear',
     throttle: 80,
+    isWillChangeEnabled: true,
   };
 
   constructor(
@@ -66,13 +74,12 @@ export class ParallaxScrollDirective implements OnInit, OnDestroy {
   ngOnInit() {
     if (isPlatformServer(this.platformID)) return;
 
-    console.log(this);
-
-    this.writeInstanceToStorage();
     this.setDefaultConfig();
     // this.initIntersectionObserver();
     this.init();
+    this.setWillChangeOptimization();
     this.setParallaxTransition();
+    this.writeInstanceToStorage();
   }
 
   ngOnDestroy() {
@@ -81,8 +88,8 @@ export class ParallaxScrollDirective implements OnInit, OnDestroy {
   }
 
   private writeInstanceToStorage() {
-    const identifier = this.ngxParallaxScroll.identifier || `parallax-${this.id}`;
-    this.parallaxService.setInstance(identifier, this);
+    this.identifier = this.ngxParallaxScroll.identifier || `parallax-${idCounter}`;
+    this.parallaxService.setInstance(this.identifier, this);
   }
 
   private setDefaultConfig() {
@@ -160,6 +167,18 @@ export class ParallaxScrollDirective implements OnInit, OnDestroy {
   }
 
   /**
+   * Enabling css 'will-change' prop
+   *
+   */
+  private setWillChangeOptimization() {
+    if (!this.ngxParallaxScroll.isWillChangeEnabled) {
+      this.setState('isWillChangeEnabled', false);
+    } else {
+      this.renderer.setStyle(this.parallaxSource.nativeElement, 'will-change', `transform`);
+    }
+  }
+
+  /**
    * Enabling parallax transition
    */
   private setParallaxTransition() {
@@ -190,18 +209,20 @@ export class ParallaxScrollDirective implements OnInit, OnDestroy {
   disable() {
     this.setState('isEnabled', false);
     this.unsubFromScroll();
+    this.emitStateChange('disable');
   }
 
   enable() {
     this.setState('isEnabled', true);
     this.init();
+    this.emitStateChange('enable');
   }
 
   /**
    * Service methods
    */
   private setState(stateProp: stateTypes, flag: boolean) {
-    this.state.isEnabled = false;
+    this.state[stateProp] = flag;
   }
 
   private unsubFromScroll() {
@@ -210,5 +231,11 @@ export class ParallaxScrollDirective implements OnInit, OnDestroy {
 
   private unobserveTarget(target) {
     this.observer && this.observer.unobserve(target);
+  }
+
+  private emitStateChange(reason: StateChangesReason) {
+    const identifier = this.ngxParallaxScroll.identifier;
+
+    this.parallaxService.emitStateChange(identifier, reason, this);
   }
 }
