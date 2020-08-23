@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, isDevMode } from '@angular/core';
 import { ParallaxScrollDirective } from './ngx-parallax-scroll.directive';
 import { Subject, Observable } from 'rxjs';
 import { InstancesChanges, InstanceChangeReason } from './ngx-parallax.interfaces';
@@ -88,6 +88,7 @@ export class NgxParallaxScrollService {
    * Service methods
    */
   private throwError(message: string, errorConstrictor: ErrorConstructor = Error) {
+    if (!isDevMode()) return;
     throw new errorConstrictor(message);
   }
 
